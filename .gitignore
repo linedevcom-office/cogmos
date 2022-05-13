@@ -1,0 +1,15 @@
+.DS_Store
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+*.log
+*.pyc
+__pycache__/
+db-volumes/
+db.sqlite3
+
+.python-version
+.env
