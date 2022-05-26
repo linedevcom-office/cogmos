@@ -104,7 +104,7 @@ admin.site.register(YoutubeVideo, YoutubeVideoAdmin)
 
 
 class LeaderAdmin(admin.ModelAdmin):
-    list_display = ('name', 'id_qiita', 'id_zenn', 'join_date')
+    list_display = ('name', 'id_qiita', 'id_zenn', 'id_connpass', 'join_date', 'lae')
 
 
 admin.site.register(Leader, LeaderAdmin)
@@ -117,8 +117,24 @@ class RoleAtEventAdmin(admin.ModelAdmin):
 admin.site.register(RoleAtEvent, RoleAtEventAdmin)
 
 
+from django import forms
+class AttendanceAtEventAdminForm(forms.ModelForm):
+    class Meta:
+        model = AttendanceAtEvent
+        fields = ('name', 'event', 'role')
+        widgets = {
+          'name': forms.RadioSelect
+        }
+
+
 class AttendanceAtEventAdmin(admin.ModelAdmin):
+    form = AttendanceAtEventAdminForm
     list_display = ('name', 'event', 'role')
+
+    class Media:
+        css = {
+            'all': ('admin/css/admin_radio.css',)
+        }
 
 
 admin.site.register(AttendanceAtEvent, AttendanceAtEventAdmin)
@@ -136,6 +152,13 @@ class CommunityCollaborationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CommunityCollaboration, CommunityCollaborationAdmin)
+
+
+class ZennMemberAdmin(admin.ModelAdmin):
+    list_display = ('date', 'name')
+
+
+admin.site.register(ZennMember, ZennMemberAdmin)
 
 
 """

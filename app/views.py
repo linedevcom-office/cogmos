@@ -18,6 +18,7 @@ from pyppeteer.browser import Browser
 from pyppeteer.launcher import launch
 from pyppeteer.page import Page
 
+from .account_validator import *
 from .models import *
 
 # Necessary to load data from DB
@@ -452,7 +453,7 @@ async def get_zenn_post_async():
                                      liked=like_count,
                                      remaining_count=7, twitter_screen_name=twitter_id).save()
                         except IntegrityError:
-                            logger.debug("already exists")
+                            logger.warning("already exists")
 
                             posts = ZennPost.objects.filter(url=entry.link)
                             for post in posts:
@@ -489,6 +490,20 @@ async def get_zenn_post_async():
                                         logger.warning("error posting to Slack")
 
                                 post.save()
+
+                        try:
+                            all_member = list(ZennMember.objects.all().values_list('name', flat=True))
+                            writer = ""
+                            try:
+                                writer = re.findall(r'https://zenn.dev/(.+?)/articles/', entry.link)[0]
+                            except:
+                                writer = re.findall(r'https://zenn.dev/(.+?)/books/', entry.link)[0]
+
+                            if writer not in all_member:
+                                logger.debug('new writer')
+                                ZennMember(name=writer, date=post_date).save()
+                        except IntegrityError:
+                            logger.warning("already exists")
 
 
 async def zenn_post(request):
@@ -581,6 +596,62 @@ def get_youtube_video():
 async def youtube_video(request):
     loop = asyncio.get_event_loop()
     loop.run_in_executor(None, get_youtube_video)
+
+    return HttpResponse("ok")
+
+
+def add_leader_async():
+    qiita = Qiita()
+    zenn = Zenn()
+    connpass = Connpass()
+
+    # Should validate accounts prior to insert
+
+    ar = []
+
+    for ac in ar:
+        if connpass.validate(ac) is False:
+            logger.debug('Error')
+            logger.debug(ac)
+
+
+async def add_leader(request):
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, add_leader_async)
+
+    return HttpResponse("ok")
+
+
+def get_zenn_member_all():
+    all_post = ZennPost.objects.all().order_by('date')
+    all_member = list(ZennMember.objects.all().values_list('name', flat=True))
+
+    for post in all_post:
+        logger.debug('%s, %s', str(post.date), post.name)
+        writer = ""
+        try:
+            writer = re.findall(r'https://zenn.dev/(.+?)/articles/', post.url)[0]
+        except:
+            writer = re.findall(r'https://zenn.dev/(.+?)/books/', post.url)[0]
+
+        logger.debug(writer)
+
+        if writer in all_member:
+            logger.debug('not new')
+        else:
+            logger.debug('this writer is new')
+
+            try:
+                ZennMember(name=writer, date=post.date).save()
+            except IntegrityError:
+                logger.debug("already exists")
+
+    return 0
+
+
+async def zenn_member_all(request):
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, get_zenn_member_all)
 
     return HttpResponse("ok")
 

@@ -181,12 +181,20 @@ class YoutubeVideo(models.Model):
 class Leader(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
-    id_qiita = models.CharField(max_length=50, unique=True)
-    id_zenn = models.CharField(max_length=50, unique=True)
+    id_qiita = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    id_zenn = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    id_connpass = models.CharField(max_length=50, unique=True, null=True, blank=True)
     join_date = models.DateField(default=timezone.now)
+    lae = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-lae', 'name']
 
     def __str__(self):
-        return str(self.name)
+        if self.lae:
+            return "【LAE】%s(C:%s)(Q:%s)(Z:%s)" % (self.name, self.id_connpass, self.id_qiita, self.id_zenn)
+        else:
+            return "%s(C:%s)(Q:%s)(Z:%s)" % (self.name, self.id_connpass, self.id_qiita, self.id_zenn)
 
 
 class RoleAtEvent(models.Model):
@@ -229,6 +237,15 @@ class CommunityCollaboration(models.Model):
 
     def __str__(self):
         return str(self.event_id)
+
+
+class ZennMember(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField(default=timezone.now)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return str(self.date)
 
 
 # Already stopped retrieving below data. Just remain for future analysis.

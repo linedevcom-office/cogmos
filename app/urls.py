@@ -13,5 +13,7 @@ urlpatterns = [
     path('zenn_post/', views.zenn_post, name='zenn_post'),
     path('connpass_new_event/', views.connpass_new_event, name='connpass_new_event'),
     path('youtube_video/', views.youtube_video, name='youtube_video'),
+    path('add_leader/', views.add_leader, name='add_leader'),
+    path('zenn_member_all/', views.zenn_member_all, name='zenn_member_all'),
     path('do_all_job/', views.do_all_job, name='do_all_job'),
 ]
