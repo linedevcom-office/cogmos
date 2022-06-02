@@ -345,6 +345,17 @@ async def get_qiita_post_async():
                             logger.debug('new writer')
                             QiitaMember(name=writer, date=post_date).save()
 
+                            if twitter_screen_name != 'undefined':
+                                tweet_template = SLACK_MENTION_ADDRESS + " \n投稿お願いします！\n\n LINEのAPIに関する記事のご執筆、ありがとうございます！s > 「%s」 by @%s さん %s #LINEDC #Qiita"
+                                tweet_string = tweet_template % (
+                                    post['title'],
+                                    twitter_screen_name,
+                                    post['url'])
+                                requests.post(SLACK_WEBHOOK_URL,
+                                              headers={'Content-Type': 'application/json'},
+                                              data=json.dumps({"text": tweet_string}))
+
+
                         QiitaPost(name=post['title'], date=post_date, url=post['url'], tag_id=qiita_tag,
                                   lgtm=post['likes_count'],
                                   remaining_count=0, twitter_screen_name=twitter_screen_name,
@@ -502,6 +513,17 @@ async def get_zenn_post_async():
                             if writer not in all_member:
                                 logger.debug('new writer')
                                 ZennMember(name=writer, date=post_date).save()
+
+                                if twitter_id != 'undefined':
+                                    tweet_template = SLACK_MENTION_ADDRESS + " \n投稿お願いします！\n\n LINEのAPIに関する記事のご執筆、ありがとうございます！ > 「%s」 by @%s さん %s #LINEDC #Qiita"
+                                    tweet_string = tweet_template % (
+                                        entry.title,
+                                        twitter_id,
+                                        entry.link)
+                                    requests.post(SLACK_WEBHOOK_URL,
+                                                  headers={'Content-Type': 'application/json'},
+                                                  data=json.dumps({"text": tweet_string}))
+
                         except IntegrityError:
                             logger.warning("already exists")
 
